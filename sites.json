@@ -12,15 +12,8 @@
     ]
   },
   {
-    "name": "实用网站",
+    "name": "常用工具",
     "items": [
-            {
-        "name": "Github",
-        "url": "https://github.com/",
-        "desc": "开源社区",
-        "icon": "🐱",
-        "color": "#3560b6"
-      }
       {
         "name": "图吧工具箱",
         "desc": "pc端验机烤鸡工具",
@@ -40,9 +33,14 @@
         "url": "https://www.askahh.com/archives/17/",
         "desc": "dddd",
         "icon": "🪜",
-        "color": "#2c6ef2"
+        "color": "#2f63ca"
       },
-
+      {
+        "name": "Github",
+        "url": "https://github.com/",
+        "desc": "开源社区",
+        "color": "#235dd1"
+      }
     ]
   }
 ]
