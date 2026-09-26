@@ -1,0 +1,41 @@
+[
+  {
+    "name": "常用工具",
+    "items": [
+      { "name": "GitHub", "desc": "代码托管", "url": "https://github.com", "color": "#24292f", "icon": "G" },
+      { "name": "Gitee", "desc": "国内代码托管", "url": "https://gitee.com", "color": "#c71d23", "icon": "G" },
+      { "name": "Stack Overflow", "desc": "技术问答", "url": "https://stackoverflow.com", "color": "#f48024", "icon": "S" },
+      { "name": "Vercel", "desc": "前端部署", "url": "https://vercel.com", "color": "#000000", "icon": "V" },
+      { "name": "Cloudflare", "desc": "CDN/托管", "url": "https://dash.cloudflare.com", "color": "#f6821f", "icon": "C" },
+      { "name": "ChatGPT", "desc": "AI 助手", "url": "https://chat.openai.com", "color": "#10a37f", "icon": "AI" }
+    ]
+  },
+  {
+    "name": "开发文档",
+    "items": [
+      { "name": "MDN", "desc": "Web 文档", "url": "https://developer.mozilla.org", "color": "#000000", "icon": "M" },
+      { "name": "菜鸟教程", "desc": "入门教程", "url": "https://www.runoob.com", "color": "#4caf50", "icon": "菜" },
+      { "name": "Node.js", "desc": "官方文档", "url": "https://nodejs.org", "color": "#339933", "icon": "N" },
+      { "name": "Vue.js", "desc": "前端框架", "url": "https://cn.vuejs.org", "color": "#42b883", "icon": "V" },
+      { "name": "React", "desc": "前端框架", "url": "https://react.dev", "color": "#61dafb", "icon": "R" },
+      { "name": "TypeScript", "desc": "类型语言", "url": "https://www.typescriptlang.org", "color": "#3178c6", "icon": "TS" }
+    ]
+  },
+  {
+    "name": "学习提升",
+    "items": [
+      { "name": "B站", "desc": "视频学习", "url": "https://www.bilibili.com", "color": "#fb7299", "icon": "B" },
+      { "name": "力扣", "desc": "算法刷题", "url": "https://leetcode.cn", "color": "#ffa116", "icon": "L" },
+      { "name": "牛客网", "desc": "求职题库", "url": "https://www.nowcoder.com", "color": "#00b386", "icon": "牛" },
+      { "name": "CSDN", "desc": "技术博客", "url": "https://www.csdn.net", "color": "#fc5531", "icon": "C" },
+      { "name": "掘金", "desc": "技术社区", "url": "https://juejin.cn", "color": "#1e80ff", "icon": "掘" },
+      { "name": "知乎", "desc": "问答社区", "url": "https://www.zhihu.com", "color": "#0084ff", "icon": "知" }
+    ]
+  },
+  {
+    "name": "我的项目",
+    "items": [
+      { "name": "五子棋", "desc": "双人联机", "url": "https://你的域名/game", "color": "#2f6fed", "icon": "棋" }
+    ]
+  }
+]

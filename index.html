@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="个人导航站">
+<title>我的导航</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1f2329;
+    --sub: #8a919c;
+    --primary: #2f6fed;
+    --border: #e8eaee;
+    --radius: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px 60px; }
+
+  header { text-align: center; margin-bottom: 36px; }
+  header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+  header p { color: var(--sub); font-size: 14px; margin-top: 6px; }
+
+  .search {
+    max-width: 520px; margin: 0 auto 40px; position: relative;
+  }
+  .search input {
+    width: 100%; height: 48px; padding: 0 20px 0 46px;
+    font-size: 15px; border: 1px solid var(--border); border-radius: 24px;
+    background: var(--card); outline: none; box-shadow: var(--shadow);
+    transition: border-color .2s;
+  }
+  .search input:focus { border-color: var(--primary); }
+  .search svg {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; fill: var(--sub); pointer-events: none;
+  }
+
+  .group { margin-bottom: 32px; }
+  .group h2 {
+    font-size: 16px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .group h2::before {
+    content: ""; width: 4px; height: 16px; border-radius: 2px;
+    background: var(--primary);
+  }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 20px 12px; background: var(--card);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    text-decoration: none; color: var(--text); border: 1px solid transparent;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 6px 16px rgba(47,111,237,.12); }
+  .card .logo {
+    width: 44px; height: 44px; border-radius: 12px; display: flex;
+    align-items: center; justify-content: center; font-size: 22px; font-weight: 600;
+    color: #fff;
+  }
+  .card .name { font-size: 14px; }
+  .card .desc { font-size: 12px; color: var(--sub); text-align: center; }
+
+  .no-result { text-align: center; color: var(--sub); padding: 40px 0; display: none; }
+
+  footer { text-align: center; color: var(--sub); font-size: 12px; margin-top: 50px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>我的导航</h1>
+    <p>常用网站 · 收藏直达</p>
+  </header>
+
+  <div class="search">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+    <input id="search" type="text" placeholder="搜索站点…" autocomplete="off">
+  </div>
+
+  <div id="groups"></div>
+  <div class="no-result" id="no-result">没有找到匹配的站点</div>
+
+  <footer>由 <a href="https://pages.cloudflare.com" style="color:var(--sub)">Cloudflare Pages</a> 托管</footer>
+</div>
+
+<script>
+// ===== 导航数据在 sites.json 里维护（改 sites.json 即可，无需动本文件）=====
+var SITES = [];
+
+// ===== 渲染逻辑（无需修改）=====
+var colors = ["#2f6fed","#e5484d","#10a37f","#f6821f","#8b5cf6","#f59e0b","#14b8a6","#ec4899"];
+
+function render(list) {
+  var groups = document.getElementById("groups");
+  groups.innerHTML = "";
+  var any = false;
+
+  list.forEach(function (g, gi) {
+    var items = g.items;
+    if (!items.length) return;
+    any = true;
+
+    var sec = document.createElement("div");
+    sec.className = "group";
+    sec.innerHTML = "<h2>" + escapeHtml(g.name) + "</h2>";
+
+    var grid = document.createElement("div");
+    grid.className = "grid";
+
+    items.forEach(function (s) {
+      var a = document.createElement("a");
+      a.className = "card";
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+
+      var c = s.color || colors[gi % colors.length];
+      a.innerHTML =
+        '<span class="logo" style="background:' + c + '">' + escapeHtml(s.icon || s.name.charAt(0)) + "</span>" +
+        '<span class="name">' + escapeHtml(s.name) + "</span>" +
+        '<span class="desc">' + escapeHtml(s.desc || "") + "</span>";
+      grid.appendChild(a);
+    });
+
+    sec.appendChild(grid);
+    groups.appendChild(sec);
+  });
+
+  document.getElementById("no-result").style.display = any ? "none" : "block";
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m];
+  });
+}
+
+document.getElementById("search").addEventListener("input", function () {
+  var kw = this.value.trim().toLowerCase();
+  if (!kw) { render(SITES); return; }
+  var filtered = SITES.map(function (g) {
+    return {
+      name: g.name,
+      items: g.items.filter(function (s) {
+        return s.name.toLowerCase().indexOf(kw) > -1 || (s.desc || "").toLowerCase().indexOf(kw) > -1;
+      })
+    };
+  });
+  render(filtered);
+});
+
+// 加载站点数据：优先读 sites.json，失败则提示
+fetch("sites.json")
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    SITES = data;
+    render(SITES);
+  })
+  .catch(function () {
+    document.getElementById("no-result").style.display = "block";
+    document.getElementById("no-result").textContent = "加载站点数据失败，请检查 sites.json 是否存在";
+  });
+
+</script>
+</body>
+</html>
