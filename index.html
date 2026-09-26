@@ -200,6 +200,27 @@
   }
   .card:hover .card__logo { transform: scale(1.07); }
 
+  /* 自动抓取的网站图标：白底衬托，避免透明图标看不清 */
+  .card__logo--auto {
+    background: #fff;
+    background-image: none;
+    border: 1px solid var(--border);
+    padding: 8px;
+    box-shadow: 0 3px 8px -2px rgba(16, 24, 40, .14);
+  }
+  .card__logo--auto img {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .card__logo--auto img.is-loaded { opacity: 1; }
+
+  @media (prefers-color-scheme: dark) {
+    .card__logo--auto { background: #f4f5f7; border-color: #2a2e37; }
+  }
+
   .card__name {
     font-size: 14px; font-weight: 500;
     max-width: 100%;
@@ -256,6 +277,7 @@
     }
     .card { padding: 18px 8px 14px; gap: 9px; border-radius: 15px; }
     .card__logo { width: 46px; height: 46px; border-radius: 13px; font-size: 21px; }
+    .card__logo--auto { padding: 6px; }
     .card__name { font-size: 13px; }
     .card__desc { display: none; }
     .foot { margin-top: 48px; }
@@ -269,7 +291,7 @@
   <header class="hero">
     <h1 class="hero__title">我的导航</h1>
     <p class="hero__sub">
-      <span>实用网站收集</span>
+      <span>常用网站 · 收藏直达</span>
       <span class="hero__dot"></span>
       <span id="clock"></span>
     </p>
@@ -283,7 +305,7 @@
   <main id="groups"><div class="state">加载中…</div></main>
   <div class="state" id="no-result" style="display:none">没有找到匹配的站点</div>
 
-  <footer class="foot">使用Cloudflare托管</footer>
+  <footer class="foot">持续整理 · 保持简洁</footer>
 </div>
 
 <script>
@@ -292,6 +314,28 @@ var SITES = [];
 
 // ===== 渲染逻辑（无需修改）=====
 var colors = ["#2f6fed","#e5484d","#10a37f","#f6821f","#8b5cf6","#f59e0b","#14b8a6","#ec4899"];
+
+/** 从网址提取域名（去掉 www. 前缀），失败返回空串 */
+function hostOf(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch (e) {
+    return "";
+  }
+}
+
+/** 绑定图标加载：成功淡入；失败依次降级 → 手动图标 → 名称首字 */
+function bindFavicon(img, color, manualIcon, letter) {
+  if (!img) return;
+  img.addEventListener("load", function () { img.classList.add("is-loaded"); });
+  img.addEventListener("error", function () {
+    var box = img.parentNode;
+    if (!box) return;
+    box.className = "card__logo";
+    box.style.background = color;
+    box.textContent = manualIcon || letter;
+  });
+}
 
 function render(list) {
   var groups = document.getElementById("groups");
@@ -328,10 +372,22 @@ function render(list) {
       idx++;
 
       var c = s.color || colors[gi % colors.length];
-      a.innerHTML =
-        '<span class="card__logo" style="background:' + c + '">' + escapeHtml(s.icon || s.name.charAt(0)) + '</span>' +
-        '<span class="card__name">' + escapeHtml(s.name) + '</span>' +
-        (s.desc ? '<span class="card__desc">' + escapeHtml(s.desc) + '</span>' : '');
+      var host = hostOf(s.url);
+      var letter = s.name.charAt(0);
+      var tail = '<span class="card__name">' + escapeHtml(s.name) + '</span>'
+        + (s.desc ? '<span class="card__desc">' + escapeHtml(s.desc) + '</span>' : '');
+
+      if (host) {
+        // 优先自动抓取网站图标；抓不到时降级为手动图标，再降级为首字
+        a.innerHTML =
+          '<span class="card__logo card__logo--auto"><img class="favicon" alt="" loading="lazy" '
+          + 'src="https://favicon.im/' + escapeHtml(host) + '"></span>' + tail;
+        bindFavicon(a.querySelector('img.favicon'), c, s.icon, letter);
+      } else {
+        // 网址不含有效域名 → 用手动图标或名称首字
+        a.innerHTML =
+          '<span class="card__logo" style="background:' + c + '">' + escapeHtml(s.icon || letter) + '</span>' + tail;
+      }
       grid.appendChild(a);
     });
 

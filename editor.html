@@ -28,6 +28,17 @@
   .field input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
   .field input:focus { border-color: var(--primary); }
 
+  /* 图标预览框 */
+  .icon-preview {
+    width: 40px; height: 40px; flex: 0 0 auto;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: #fff; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-preview img { width: 100%; height: 100%; object-fit: contain; padding: 5px; display: block; }
+  .icon-preview__ph { font-size: 11px; color: var(--sub); }
+  .icon-preview__txt { font-size: 17px; font-weight: 600; color: var(--text); }
+
   .btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   .btn--primary { background: var(--primary); color: #fff; }
   .btn--save { background: #10a37f; color: #fff; }
@@ -103,7 +114,12 @@
       </div>
     </div>
     <div class="row">
-      <div class="field"><label>图标（可选）</label><input id="in-icon" placeholder="留空用名称首字，可填单字或 emoji"></div>
+      <div class="field"><label>备用图标</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="icon-preview" class="icon-preview"><span class="icon-preview__ph">自动</span></span>
+          <input id="in-icon" placeholder="优先自动抓取；抓不到时用这个" style="flex:1;">
+        </div>
+      </div>
       <div class="field"><label>颜色（可选）</label><input id="in-color" type="color" value="#2f6fed" style="height:40px;padding:4px;cursor:pointer;"></div>
     </div>
     <div class="bar">
@@ -174,6 +190,53 @@
     return null;
   }
 
+  /** 从网址提取域名（去掉 www. 前缀），失败返回空串 */
+  function hostOf(url) {
+    try {
+      return new URL(url).hostname.replace(/^www\./, "");
+    } catch (e) {
+      return "";
+    }
+  }
+
+  // ---------- 图标预览（与网站主页同一套逻辑）----------
+  function updateIconPreview() {
+    var box = $('icon-preview');
+    var manual = $('in-icon').value.trim();
+    var host = hostOf($('in-url').value.trim());
+    box.innerHTML = '';
+
+    // 没有有效域名 → 显示备用图标或占位
+    if (!host) {
+      if (manual) {
+        var sp0 = document.createElement('span');
+        sp0.className = 'icon-preview__txt';
+        sp0.textContent = manual;
+        box.appendChild(sp0);
+      } else {
+        box.innerHTML = '<span class="icon-preview__ph">自动</span>';
+      }
+      return;
+    }
+
+    // 优先显示抓取到的网站图标
+    var img = document.createElement('img');
+    img.alt = '';
+    img.src = 'https://favicon.im/' + host;
+    img.addEventListener('error', function () {
+      box.innerHTML = '';
+      if (manual) {
+        var sp = document.createElement('span');
+        sp.className = 'icon-preview__txt';
+        sp.textContent = manual;
+        box.appendChild(sp);
+      } else {
+        box.innerHTML = '<span class="icon-preview__ph">未找到</span>';
+      }
+    });
+    box.appendChild(img);
+  }
+
   // ---------- 添加分类 ----------
   $('btn-addcat').addEventListener('click', function () {
     var name = $('in-newcat').value.trim();
@@ -192,6 +255,7 @@
     $('in-cat').value = '';
     $('in-icon').value = '';
     $('in-color').value = '#2f6fed';
+    updateIconPreview();
   }
 
   function setEditingUI(isEditing) {
@@ -275,6 +339,7 @@
     $('in-icon').value = s.icon || '';
     $('in-color').value = s.color || '#2f6fed';
     editing = { item: s, oldCat: g };
+    updateIconPreview();
     setEditingUI(true);
     render();
     $('in-name').focus();
@@ -398,6 +463,11 @@
       return { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m];
     });
   }
+
+  // 图标预览联动：网址或图标变化时即时刷新
+  $('in-url').addEventListener('input', updateIconPreview);
+  $('in-icon').addEventListener('input', updateIconPreview);
+  updateIconPreview();
 
   render();
 })();
