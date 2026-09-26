@@ -28,6 +28,15 @@
   .field input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
   .field input:focus { border-color: var(--primary); }
 
+  .field textarea {
+    width: 100%; padding: 10px 12px;
+    min-height: 62px; resize: vertical;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; font-family: inherit; line-height: 1.6;
+    outline: none;
+  }
+  .field textarea:focus { border-color: var(--primary); }
+
   /* 图标预览框 */
   .icon-preview {
     width: 40px; height: 40px; flex: 0 0 auto;
@@ -107,10 +116,16 @@
       <div class="field"><label>网址 *</label><input id="in-url" placeholder="如：https://github.com"></div>
     </div>
     <div class="row">
-      <div class="field"><label>介绍</label><input id="in-desc" placeholder="一句话描述（可留空）"></div>
+      <div class="field"><label>简介（卡片上显示）</label><input id="in-desc" placeholder="一句话短语，如：代码托管"></div>
       <div class="field"><label>分类 *</label>
         <input id="in-cat" list="cat-list" placeholder="选已有分类，或填新分类名">
         <datalist id="cat-list"></datalist>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" style="flex:1 0 100%;">
+        <label>详细介绍（点击卡片后的弹窗里显示）</label>
+        <textarea id="in-intro" rows="2" placeholder="1-2 句话介绍这个网站，留空则用上面的简介"></textarea>
       </div>
     </div>
     <div class="row">
@@ -252,6 +267,7 @@
     $('in-name').value = '';
     $('in-url').value = '';
     $('in-desc').value = '';
+    $('in-intro').value = '';
     $('in-cat').value = '';
     $('in-icon').value = '';
     $('in-color').value = '#2f6fed';
@@ -275,6 +291,7 @@
     var name = $('in-name').value.trim();
     var url = $('in-url').value.trim();
     var desc = $('in-desc').value.trim();
+    var intro = $('in-intro').value.trim();
     var cat = $('in-cat').value.trim();
     var icon = $('in-icon').value.trim();
     var color = $('in-color').value;
@@ -286,6 +303,7 @@
 
     var item = { name: name, url: url };
     if (desc) item.desc = desc;
+    if (intro) item.intro = intro;
     if (icon) item.icon = icon;
     if (color && color !== '#2f6fed') item.color = color; // 默认蓝不写，交给前端自动配色
     return { item: item, cat: cat };
@@ -335,6 +353,7 @@
     $('in-name').value = s.name;
     $('in-url').value = s.url;
     $('in-desc').value = s.desc || '';
+    $('in-intro').value = s.intro || '';
     $('in-cat').value = g.name;
     $('in-icon').value = s.icon || '';
     $('in-color').value = s.color || '#2f6fed';
