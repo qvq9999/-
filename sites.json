@@ -1,6 +1,6 @@
 [
   {
-    "name": "我的项目",
+    "name": "小游戏",
     "items": [
       {
         "name": "五子棋",
@@ -12,7 +12,7 @@
     ]
   },
   {
-    "name": "常用工具",
+    "name": "实用网站",
     "items": [
       {
         "name": "图吧工具箱",
@@ -40,6 +40,11 @@
         "url": "https://github.com/",
         "desc": "开源社区",
         "color": "#235dd1"
+      },
+      {
+        "name": "Cloudflare",
+        "url": "https://dash.cloudflare.com/",
+        "desc": "可免费部署静态网站，此站就在 cloudflare 部署"
       }
     ]
   }
