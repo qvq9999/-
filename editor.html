@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>导航站 · 站点编辑器</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #fff; --text: #1f2329; --sub: #8a919c;
+    --primary: #2f6fed; --danger: #e5484d; --border: #e8eaee; --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 22px; text-align: center; margin-bottom: 6px; }
+  .sub { text-align: center; color: var(--sub); font-size: 13px; margin-bottom: 24px; }
+
+  .panel { background: var(--card); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .panel h2 { font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .step { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 12px; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 200px; margin-bottom: 12px; }
+  .field label { display: block; font-size: 13px; color: var(--sub); margin-bottom: 5px; }
+  .field input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
+  .field input:focus { border-color: var(--primary); }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  .btn--primary { background: var(--primary); color: #fff; }
+  .btn--save { background: #10a37f; color: #fff; }
+  .btn--ghost { background: #f0f1f3; color: var(--text); }
+  .btn--danger { background: #fdecec; color: var(--danger); }
+  .btn:active { opacity: .8; }
+
+  .tip { font-size: 12px; color: var(--sub); margin-top: 4px; }
+  .editing-hint { display: none; font-size: 12px; color: #10a37f; margin-left: 10px; }
+
+  /* 预览区 */
+  .cat { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+  .cat__head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #fafbfc; border-bottom: 1px solid var(--border); }
+  .cat__name { font-weight: 600; font-size: 14px; }
+  .cat__del { font-size: 12px; color: var(--danger); cursor: pointer; border: none; background: none; }
+  .site { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid #f2f3f5; }
+  .site:last-child { border-bottom: none; }
+  .site--editing { background: #f0fbf6; }
+  .site__logo { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; flex: 0 0 auto; }
+  .site__info { flex: 1; min-width: 0; }
+  .site__name { font-size: 14px; }
+  .site__url { font-size: 12px; color: var(--sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .site__op { display: flex; gap: 10px; flex: 0 0 auto; }
+  .site__op button { font-size: 12px; cursor: pointer; border: none; background: none; }
+  .site__edit { color: var(--primary); }
+  .site__del { color: var(--danger); }
+
+  .empty { text-align: center; color: var(--sub); padding: 30px 0; font-size: 14px; }
+  .bar { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; align-items: center; }
+  textarea { width: 100%; min-height: 140px; font-family: "Consolas", "Monaco", monospace; font-size: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; resize: vertical; outline: none; }
+  .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); background: rgba(28,28,30,.9); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 99; }
+  .toast--show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>导航站 · 站点编辑器</h1>
+  <p class="sub">填好信息自动生成 sites.json，支持添加、编辑、删除</p>
+
+  <!-- 第一步：导入 -->
+  <div class="panel">
+    <h2><span class="step">1</span> 导入现有 sites.json</h2>
+    <div class="row">
+      <div class="field">
+        <input type="file" id="file" accept=".json,application/json">
+      </div>
+      <button class="btn btn--ghost" id="btn-load">读取文件</button>
+    </div>
+    <p class="tip">选择本地「导航站」目录里的 sites.json，就能在现有基础上编辑或继续添加。</p>
+  </div>
+
+  <!-- 第二步：表单 -->
+  <div class="panel">
+    <h2><span class="step">2</span> 填写 / 修改站点信息</h2>
+
+    <!-- 添加分类 -->
+    <div class="row" style="margin-bottom:6px;">
+      <div class="field" style="margin-bottom:0;">
+        <input id="in-newcat" placeholder="输入新分类名，如：学习资源" style="height:40px;">
+      </div>
+      <button class="btn btn--ghost" id="btn-addcat" style="align-self:flex-start;">＋ 添加分类</button>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>名称 *</label><input id="in-name" placeholder="如：GitHub"></div>
+      <div class="field"><label>网址 *</label><input id="in-url" placeholder="如：https://github.com"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>介绍</label><input id="in-desc" placeholder="一句话描述（可留空）"></div>
+      <div class="field"><label>分类 *</label>
+        <input id="in-cat" list="cat-list" placeholder="选已有分类，或填新分类名">
+        <datalist id="cat-list"></datalist>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>图标（可选）</label><input id="in-icon" placeholder="留空用名称首字，可填单字或 emoji"></div>
+      <div class="field"><label>颜色（可选）</label><input id="in-color" type="color" value="#2f6fed" style="height:40px;padding:4px;cursor:pointer;"></div>
+    </div>
+    <div class="bar">
+      <span class="editing-hint" id="editing-hint">正在编辑中…</span>
+      <button class="btn btn--ghost" id="btn-cancel" style="display:none;">取消编辑</button>
+      <button class="btn btn--primary" id="btn-add">＋ 添加站点</button>
+    </div>
+  </div>
+
+  <!-- 第三步：预览与导出 -->
+  <div class="panel">
+    <h2><span class="step">3</span> 预览 &amp; 导出</h2>
+    <div id="preview"><div class="empty">还没有数据，请先导入或添加站点</div></div>
+    <div class="bar" style="margin-top:14px;">
+      <button class="btn btn--ghost" id="btn-preview">查看 JSON</button>
+      <button class="btn btn--ghost" id="btn-copy">复制 JSON</button>
+      <button class="btn btn--primary" id="btn-download">下载 sites.json</button>
+    </div>
+    <textarea id="json-out" style="display:none;margin-top:12px;" readonly></textarea>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var data = [];                // 内存中的站点数据，结构同 sites.json
+  var editing = null;           // 正在编辑的站点：{ item, oldCat } 或 null
+  var colors = ["#2f6fed","#e5484d","#10a37f","#f6821f","#8b5cf6","#f59e0b","#14b8a6","#ec4899"];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('toast--show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('toast--show'); }, 2000);
+  }
+
+  // ---------- 导入 ----------
+  $('btn-load').addEventListener('click', function () {
+    var f = $('file').files[0];
+    if (!f) { toast('请先选择 sites.json 文件'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var d = JSON.parse(reader.result);
+        if (!Array.isArray(d)) throw new Error('格式不对');
+        data = d;
+        editing = null;
+        resetForm();
+        setEditingUI(false);
+        render();
+        toast('导入成功，共 ' + d.length + ' 个分类');
+      } catch (e) {
+        toast('读取失败：' + e.message);
+      }
+    };
+    reader.readAsText(f);
+  });
+
+  // ---------- 表单工具 ----------
+  function findCat(name) {
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].name === name) return data[i];
+    }
+    return null;
+  }
+
+  // ---------- 添加分类 ----------
+  $('btn-addcat').addEventListener('click', function () {
+    var name = $('in-newcat').value.trim();
+    if (!name) { toast('请输入分类名'); return; }
+    if (findCat(name)) { toast('分类「' + name + '」已存在'); return; }
+    data.push({ name: name, items: [] });
+    $('in-newcat').value = '';
+    render();
+    toast('已添加分类「' + name + '」');
+  });
+
+  function resetForm() {
+    $('in-name').value = '';
+    $('in-url').value = '';
+    $('in-desc').value = '';
+    $('in-cat').value = '';
+    $('in-icon').value = '';
+    $('in-color').value = '#2f6fed';
+  }
+
+  function setEditingUI(isEditing) {
+    var addBtn = $('btn-add');
+    $('btn-cancel').style.display = isEditing ? 'inline-flex' : 'none';
+    $('editing-hint').style.display = isEditing ? 'inline' : 'none';
+    if (isEditing) {
+      addBtn.textContent = '保存修改';
+      addBtn.classList.add('btn--save');
+    } else {
+      addBtn.textContent = '＋ 添加站点';
+      addBtn.classList.remove('btn--save');
+    }
+  }
+
+  function collectForm() {
+    var name = $('in-name').value.trim();
+    var url = $('in-url').value.trim();
+    var desc = $('in-desc').value.trim();
+    var cat = $('in-cat').value.trim();
+    var icon = $('in-icon').value.trim();
+    var color = $('in-color').value;
+
+    if (!name) { toast('请填写名称'); return null; }
+    if (!url) { toast('请填写网址'); return null; }
+    if (!cat) { toast('请填写分类名'); return null; }
+    if (!/^https?:\/\//i.test(url)) { toast('网址需以 http:// 或 https:// 开头'); return null; }
+
+    var item = { name: name, url: url };
+    if (desc) item.desc = desc;
+    if (icon) item.icon = icon;
+    if (color && color !== '#2f6fed') item.color = color; // 默认蓝不写，交给前端自动配色
+    return { item: item, cat: cat };
+  }
+
+  // ---------- 提交（添加 / 保存修改共用）----------
+  $('btn-add').addEventListener('click', function () {
+    var r = collectForm();
+    if (!r) return;
+
+    if (editing) {
+      // 编辑模式：先移除旧项
+      var oldIdx = editing.oldCat.items.indexOf(editing.item);
+      if (oldIdx >= 0) editing.oldCat.items.splice(oldIdx, 1);
+      if (editing.oldCat.items.length === 0) {
+        var ci = data.indexOf(editing.oldCat);
+        if (ci >= 0) data.splice(ci, 1);
+      }
+      editing = null;
+      // 再加到（可能新的）分类
+      var g = findCat(r.cat);
+      if (g) g.items.push(r.item); else data.push({ name: r.cat, items: [r.item] });
+      resetForm();
+      setEditingUI(false);
+      render();
+      toast('修改已保存');
+    } else {
+      // 添加模式
+      var g2 = findCat(r.cat);
+      if (g2) g2.items.push(r.item); else data.push({ name: r.cat, items: [r.item] });
+      resetForm();
+      render();
+      toast('已添加「' + r.item.name + '」到「' + r.cat + '」');
+    }
+  });
+
+  $('btn-cancel').addEventListener('click', function () {
+    editing = null;
+    resetForm();
+    setEditingUI(false);
+    render();
+  });
+
+  // ---------- 编辑 / 删除 ----------
+  function startEdit(ci, si) {
+    var g = data[ci], s = g.items[si];
+    $('in-name').value = s.name;
+    $('in-url').value = s.url;
+    $('in-desc').value = s.desc || '';
+    $('in-cat').value = g.name;
+    $('in-icon').value = s.icon || '';
+    $('in-color').value = s.color || '#2f6fed';
+    editing = { item: s, oldCat: g };
+    setEditingUI(true);
+    render();
+    $('in-name').focus();
+    toast('正在编辑「' + s.name + '」，改完点「保存修改」');
+  }
+
+  function delSite(ci, si) {
+    var g = data[ci];
+    if (editing && editing.item === g.items[si]) { editing = null; setEditingUI(false); }
+    g.items.splice(si, 1);
+    if (g.items.length === 0) data.splice(ci, 1);
+    render();
+  }
+  function delCat(ci) {
+    if (editing && editing.oldCat === data[ci]) { editing = null; setEditingUI(false); }
+    data.splice(ci, 1);
+    render();
+  }
+
+  // ---------- 渲染预览 ----------
+  function render() {
+    var box = $('preview');
+    if (!data.length) {
+      box.innerHTML = '<div class="empty">还没有数据，请先导入或添加站点</div>';
+      updateDatalist();
+      return;
+    }
+    var html = '';
+    data.forEach(function (g, gi) {
+      html += '<div class="cat">'
+        + '<div class="cat__head"><span class="cat__name">' + esc(g.name) + '</span>'
+        + '<button class="cat__del" data-ci="' + gi + '">删除分类</button></div>';
+      if (!g.items.length) {
+        html += '<div class="empty" style="padding:8px 14px;text-align:left;">（空分类，添加站点后才会显示在网站上）</div>';
+      }
+      g.items.forEach(function (s, si) {
+        var c = s.color || colors[gi % colors.length];
+        var ic = s.icon || s.name.charAt(0);
+        var editingCls = (editing && editing.item === s) ? ' site--editing' : '';
+        html += '<div class="site' + editingCls + '">'
+          + '<span class="site__logo" style="background:' + c + '">' + esc(ic) + '</span>'
+          + '<div class="site__info">'
+          + '<div class="site__name">' + esc(s.name) + '</div>'
+          + '<div class="site__url">' + esc(s.url) + '</div>'
+          + '</div>'
+          + '<div class="site__op">'
+          + '<button class="site__edit" data-ci="' + gi + '" data-si="' + si + '">编辑</button>'
+          + '<button class="site__del" data-ci="' + gi + '" data-si="' + si + '">删除</button>'
+          + '</div>'
+          + '</div>';
+      });
+      html += '</div>';
+    });
+    box.innerHTML = html;
+
+    box.querySelectorAll('.site__edit').forEach(function (b) {
+      b.addEventListener('click', function () { startEdit(Number(b.dataset.ci), Number(b.dataset.si)); });
+    });
+    box.querySelectorAll('.site__del').forEach(function (b) {
+      b.addEventListener('click', function () { delSite(Number(b.dataset.ci), Number(b.dataset.si)); });
+    });
+    box.querySelectorAll('.cat__del').forEach(function (b) {
+      b.addEventListener('click', function () { delCat(Number(b.dataset.ci)); });
+    });
+    updateDatalist();
+  }
+
+  function updateDatalist() {
+    var dl = $('cat-list');
+    dl.innerHTML = '';
+    data.forEach(function (g) {
+      var o = document.createElement('option');
+      o.value = g.name;
+      dl.appendChild(o);
+    });
+  }
+
+  // ---------- 导出 ----------
+  function toJSON() {
+    return JSON.stringify(data, null, 2);
+  }
+  $('btn-preview').addEventListener('click', function () {
+    var ta = $('json-out');
+    if (ta.style.display === 'none') {
+      ta.value = toJSON();
+      ta.style.display = 'block';
+      this.textContent = '收起 JSON';
+    } else {
+      ta.style.display = 'none';
+      this.textContent = '查看 JSON';
+    }
+  });
+  $('btn-copy').addEventListener('click', function () {
+    var text = toJSON();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast('已复制到剪贴板'); }, function () { fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  });
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('已复制到剪贴板'); } catch (e) { toast('复制失败'); }
+    document.body.removeChild(ta);
+  }
+  $('btn-download').addEventListener('click', function () {
+    if (!data.length) { toast('没有数据可导出'); return; }
+    var blob = new Blob([toJSON()], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sites.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('已下载 sites.json');
+  });
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (m) {
+      return { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m];
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
