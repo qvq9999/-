@@ -12,8 +12,15 @@
     ]
   },
   {
-    "name": "常用工具",
+    "name": "实用网站",
     "items": [
+            {
+        "name": "Github",
+        "url": "https://github.com/",
+        "desc": "开源社区",
+        "icon": "🐱",
+        "color": "#3560b6"
+      }
       {
         "name": "图吧工具箱",
         "desc": "pc端验机烤鸡工具",
@@ -34,7 +41,8 @@
         "desc": "dddd",
         "icon": "🪜",
         "color": "#2c6ef2"
-      }
+      },
+
     ]
   }
 ]
