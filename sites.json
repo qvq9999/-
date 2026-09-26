@@ -2,15 +2,38 @@
   {
     "name": "我的项目",
     "items": [
-      { "name": "五子棋", "desc": "双人联机", "url": "http://47.104.238.201:3000/", "color": "#2f6fed", "icon": "棋" }
+      {
+        "name": "五子棋",
+        "desc": "双人联机",
+        "url": "http://47.104.238.201:3000/",
+        "color": "#2f6fed",
+        "icon": "棋"
+      }
     ]
   },
   {
     "name": "常用工具",
     "items": [
-      { "name": "免费加速器", "desc": "汇总", "url": "https://www.askahh.com/archives/17/", "color": "#2f6fed", "icon": "🪜" },
-      { "name": "图吧工具箱", "desc": "pc端验机烤鸡工具", "url": "https://www.tbtool.cn/", "color": "#2f6fed", "icon": "📦" },
-      { "name": "蒸汽游戏宝库", "desc": "免费steam游戏资源", "url": "https://www.steambk.com/", "color": "#2f6fed", "icon": "🎮" }
+      {
+        "name": "图吧工具箱",
+        "desc": "pc端验机烤鸡工具",
+        "url": "https://www.tbtool.cn/",
+        "color": "#2f6fed",
+        "icon": "📦"
+      },
+      {
+        "name": "蒸汽游戏宝库",
+        "desc": "免费steam游戏资源",
+        "url": "https://www.steambk.com/",
+        "color": "#2f6fed",
+        "icon": "🎮"
+      },
+      {
+        "name": "免费加速器",
+        "url": "https://www.askahh.com/archives/17/",
+        "desc": "dddd",
+        "icon": "🪜"
+      }
     ]
   }
 ]
