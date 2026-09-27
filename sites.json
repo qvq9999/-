@@ -4,10 +4,16 @@
     "items": [
       {
         "name": "五子棋",
-        "desc": "双人联机",
         "url": "http://47.104.238.201:3000/",
-        "color": "#2f6fed",
+        "desc": "双人联机",
+        "intro": "完善度相对较高，可创建账号，添加好友对战",
         "icon": "棋"
+      },
+      {
+        "name": "坦克大战",
+        "url": "http://47.104.238.201:3002/",
+        "desc": "小游戏联机对战",
+        "intro": "还在完善阶段，目前效果一般"
       }
     ]
   },
@@ -15,18 +21,18 @@
     "name": "实用网站",
     "items": [
       {
-        "name": "图吧工具箱",
-        "desc": "pc端验机烤鸡工具",
-        "url": "https://www.tbtool.cn/",
-        "color": "#2f6fed",
-        "icon": "📦"
+        "name": "蒸汽游戏宝库",
+        "url": "https://www.steambk.com/",
+        "desc": "免费steam游戏资源",
+        "intro": "不是官方steam是免费游戏资源网站，里面有很多免费单机游戏",
+        "icon": "🎮"
       },
       {
-        "name": "蒸汽游戏宝库",
-        "desc": "免费steam游戏资源",
-        "url": "https://www.steambk.com/",
-        "color": "#2f6fed",
-        "icon": "🎮"
+        "name": "图吧工具箱",
+        "url": "https://www.tbtool.cn/",
+        "desc": "pc端验机烤鸡工具",
+        "intro": "里面有许多电脑端好用的工具，例如：显示系统设备信息、CPU、显卡跑分测试工具",
+        "icon": "📦"
       },
       {
         "name": "免费加速器",
