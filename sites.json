@@ -28,13 +28,6 @@
         "icon": "🎮"
       },
       {
-        "name": "图吧工具箱",
-        "url": "https://www.tbtool.cn/",
-        "desc": "pc端验机烤鸡工具",
-        "intro": "里面有许多电脑端好用的工具，例如：显示系统设备信息、CPU、显卡跑分测试工具",
-        "icon": "📦"
-      },
-      {
         "name": "免费加速器",
         "url": "https://www.askahh.com/archives/17/",
         "desc": "dddd",
@@ -51,6 +44,36 @@
         "name": "Cloudflare",
         "url": "https://dash.cloudflare.com/",
         "desc": "可免费部署静态网站，此站就在 cloudflare 部署"
+      }
+    ]
+  },
+  {
+    "name": "软件",
+    "items": [
+      {
+        "name": "Steam",
+        "url": "https://store.steampowered.com/",
+        "desc": "游戏平台",
+        "intro": "正版steam平台"
+      },
+      {
+        "name": "Wegame",
+        "url": "https://www.wegame.com.cn/home/",
+        "desc": "腾讯游戏平台",
+        "intro": "三角洲、无畏契约、lol 、cf 、dnf  等游戏在这个平台"
+      },
+      {
+        "name": "Todesk",
+        "url": "https://www.todesk.com/",
+        "desc": "远程软件",
+        "intro": "根据设备代码可以远程协助对方电脑"
+      },
+      {
+        "name": "图吧工具箱",
+        "url": "https://www.tbtool.cn/",
+        "desc": "pc端验机烤鸡工具",
+        "intro": "里面有许多电脑端好用的工具，例如：显示系统设备信息、CPU、显卡跑分测试工具",
+        "icon": "📦"
       }
     ]
   }
